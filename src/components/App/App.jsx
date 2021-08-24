@@ -19,10 +19,6 @@ const App = () => {
     setValue(event.target.value);
   };
 
-  useEffect(() => {
-    console.log('%cApp.jsx line:23 dirHandle', 'color: #007acc;', dirHandle);
-  }, [dirHandle]);
-
   const readFile = async () => {
     const file = await fileHandle.getFile();
     const contents = await file.text();
@@ -99,6 +95,18 @@ const App = () => {
       });
   };
 
+  const handleDrop = async (e) => {
+    e.preventDefault();
+    const s = e.dataTransfer.items;
+    const entry = await s[0].getAsFileSystemHandle();
+    if (entry.kind === 'directory') {
+      const ss = await directoryOpen(entry, { recursive: true });
+      setDir(ss);
+    } else {
+      setFileHandle(entry);
+    }
+  };
+
   return (
     <Box>
       <Box className={classes.acitons}>
@@ -117,6 +125,7 @@ const App = () => {
           variant="outlined"
           multiline
           rows={20}
+          onDrop={handleDrop}
         />
         <TreeView
           defaultCollapseIcon={<ExpandMoreIcon />}

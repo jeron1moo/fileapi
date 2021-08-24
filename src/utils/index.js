@@ -29,8 +29,11 @@ const getFiles = async (dirHandle, recursive, path = dirHandle.name) => {
   };
 };
 
-export default async (options = {}) => {
+export default async (dirHandle, options = {}) => {
   options.recursive = options.recursive || false;
+  if (dirHandle) {
+    return getFiles(dirHandle, options.recursive);
+  }
   const handle = await window.showDirectoryPicker({
     id: options.id,
     startIn: options.startIn,
