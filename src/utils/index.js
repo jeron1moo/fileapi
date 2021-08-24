@@ -24,6 +24,7 @@ const getFiles = async (dirHandle, recursive, path = dirHandle.name) => {
   return {
     name: dirHandle.name,
     id: dirHandle.name,
+    directoryHandle: dirHandle,
     children: [...(await Promise.all(dirs)), ...(await Promise.all(files))],
   };
 };

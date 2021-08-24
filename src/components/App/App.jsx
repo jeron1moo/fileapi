@@ -1,10 +1,4 @@
-import {
-  Box,
-  Button,
-  ImageList,
-  ImageListItem,
-  TextField,
-} from '@material-ui/core';
+import { Box, Button, TextField } from '@material-ui/core';
 import React, { useEffect, useState } from 'react';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
@@ -18,24 +12,23 @@ const App = () => {
   const [value, setValue] = useState('');
   const [dir, setDir] = useState(null);
   const [img, setImg] = useState(null);
-
   const [fileHandle, setFileHandle] = useState(null);
+  const [dirHandle, setDirHandle] = useState(null);
+
   const handleChange = (event) => {
     setValue(event.target.value);
   };
+
+  useEffect(() => {
+    console.log('%cApp.jsx line:23 dirHandle', 'color: #007acc;', dirHandle);
+  }, [dirHandle]);
 
   const readFile = async () => {
     const file = await fileHandle.getFile();
     const contents = await file.text();
     setValue(contents);
     setImg(null);
-    // const myblob = new Blob([contents], {
-    //   type: 'image/jpeg',
-    // });
-
-    // const reader = new FileReader();
-    // const f = reader.readAsDataURL(myblob);
-    // console.log('%cApp.jsx line:32 reader', 'color: #007acc;', f);
+    // const myblob = new Blob([contents], { type: 'image/jpeg' });
     // const objectURL = URL.createObjectURL(myblob);
     // console.log('%cApp.jsx line:39 objectURL', 'color: #007acc;', objectURL);
     // setImg(objectURL);
@@ -49,10 +42,22 @@ const App = () => {
     setFileHandle(...(await window.showOpenFilePicker()));
   };
 
+  const handleSaveAs = async () => {
+    const newHandle = await window.showSaveFilePicker();
+    setFileHandle(newHandle);
+    const writableStream = await newHandle.createWritable();
+    await writableStream.write(value);
+    await writableStream.close();
+  };
+
   const writeFile = async () => {
+    if (!fileHandle) {
+      return handleSaveAs();
+    }
     const writable = await fileHandle.createWritable();
     await writable.write(value);
     await writable.close();
+    return '';
   };
 
   const directoryPicker = async () => {
@@ -60,9 +65,10 @@ const App = () => {
     setDir(s);
   };
 
-  const handleTree = async (file) => {
-    if (file) {
-      setFileHandle(file);
+  const handleTree = async (node) => {
+    if (node) {
+      setFileHandle(node.fileHandle);
+      setDirHandle(node.directoryHandle);
     }
   };
 
@@ -71,7 +77,9 @@ const App = () => {
       key={nodes.id}
       nodeId={nodes.id}
       label={nodes.name}
-      onClick={() => handleTree(nodes.fileHandle)}
+      onClick={() => {
+        handleTree(nodes);
+      }}
     >
       {Array.isArray(nodes.children)
         ? nodes.children.map((node) => renderTree(node))
@@ -79,13 +87,17 @@ const App = () => {
     </TreeItem>
   );
 
-  const handleSaveAs = async () => {
-    const newHandle = await window.showSaveFilePicker();
-    const writableStream = await newHandle.createWritable();
-    await writableStream.write(value);
-    await writableStream.close();
+  const handleCreateNew = async () => {
+    setFileHandle(null);
+    setValue('');
   };
-  const handleCreateNew = () => {};
+
+  const handleRemove = async () => {
+    if (fileHandle?.name)
+      await dirHandle.removeEntry(fileHandle.name, {
+        recursive: true,
+      });
+  };
 
   return (
     <Box>
@@ -95,6 +107,7 @@ const App = () => {
         <Button onClick={writeFile}>Save</Button>
         <Button onClick={handleSaveAs}>Save as</Button>
         <Button onClick={handleCreateNew}>Create New</Button>
+        <Button onClick={handleRemove}>Remove</Button>
       </Box>
       <Box className={classes.content}>
         <TextField
@@ -113,13 +126,7 @@ const App = () => {
           {dir && renderTree(dir)}
         </TreeView>
       </Box>
-      {img && (
-        <ImageList rowHeight={160} className={classes.imageList} cols={3}>
-          <ImageListItem>
-            <img src={img.name} alt="fds" />
-          </ImageListItem>
-        </ImageList>
-      )}
+      {img && <img src={img} alt="fds" />}
     </Box>
   );
 };
