@@ -1,5 +1,7 @@
 /* eslint-disable no-restricted-syntax */
 
+import { nanoid } from 'nanoid';
+
 const getFiles = async (dirHandle, recursive, path = dirHandle.name) => {
   const dirs = [];
   const files = [];
@@ -23,7 +25,7 @@ const getFiles = async (dirHandle, recursive, path = dirHandle.name) => {
   }
   return {
     name: dirHandle.name,
-    id: dirHandle.name,
+    id: nanoid(),
     directoryHandle: dirHandle,
     children: [...(await Promise.all(dirs)), ...(await Promise.all(files))],
   };
