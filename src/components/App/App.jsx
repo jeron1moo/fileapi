@@ -7,6 +7,8 @@ import { TreeView } from '@material-ui/lab';
 import directoryOpen from '../../utils';
 import useStyles from './styles';
 
+const images = ['image/jpeg'];
+
 const App = () => {
   const classes = useStyles();
   const [value, setValue] = useState('');
@@ -21,22 +23,17 @@ const App = () => {
 
   const readFile = async () => {
     const file = await fileHandle.getFile();
+    if (images.includes(file.type)) {
+      const im = URL.createObjectURL(file);
+      return setImg(im);
+    }
     const contents = await file.text();
-    setValue(contents);
-    setImg(null);
-    // const myblob = new Blob([contents], { type: 'image/jpeg' });
-    // const objectURL = URL.createObjectURL(myblob);
-    // console.log('%cApp.jsx line:39 objectURL', 'color: #007acc;', objectURL);
-    // setImg(objectURL);
+    return setValue(contents);
   };
 
   useEffect(() => {
     if (fileHandle) readFile(fileHandle);
   }, [fileHandle]);
-
-  useEffect(() => {
-    console.log('%cApp.jsx line:38 dir', 'color: #007acc;', dir);
-  }, [dir]);
 
   const handleClick = async () => {
     setFileHandle(...(await window.showOpenFilePicker()));
