@@ -12,11 +12,13 @@ const getFiles = async (dirHandle, recursive, path = dirHandle.name) => {
         entry.getFile().then(async (file) => {
           file.directoryHandle = dirHandle;
           file.fileHandle = await dirHandle.getFileHandle(file.name);
-          return Object.defineProperty(file, 'webkitRelativePath', {
+          Object.defineProperty(file, 'webkitRelativePath', {
             configurable: true,
             enumerable: true,
             get: () => nestedPath,
           });
+          Object.defineProperty(file, 'id', { value: nanoid() });
+          return file;
         }),
       );
     } else if (entry.kind === 'directory' && recursive) {
@@ -31,11 +33,12 @@ const getFiles = async (dirHandle, recursive, path = dirHandle.name) => {
   };
 };
 
-export default async (dirHandle, options = {}) => {
+export default async ({ dirHandle = null, options = {} }) => {
   options.recursive = options.recursive || false;
   if (dirHandle) {
     return getFiles(dirHandle, options.recursive);
   }
+
   const handle = await window.showDirectoryPicker({
     id: options.id,
     startIn: options.startIn,

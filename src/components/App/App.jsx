@@ -57,8 +57,8 @@ const App = () => {
   };
 
   const directoryPicker = async () => {
-    const s = await directoryOpen({ recursive: true });
-    setDir(s);
+    const dirFolders = await directoryOpen({ options: { recursive: true } });
+    setDir(dirFolders);
   };
 
   const handleTree = async (node) => {
@@ -68,7 +68,7 @@ const App = () => {
     }
   };
 
-  const renderTree = (nodes) => (
+  const renderTree = (nodes) => {
     <TreeItem
       key={nodes.id}
       nodeId={nodes.id}
@@ -80,8 +80,8 @@ const App = () => {
       {Array.isArray(nodes.children)
         ? nodes.children.map((node) => renderTree(node))
         : null}
-    </TreeItem>
-  );
+    </TreeItem>;
+  };
 
   const handleCreateNew = async () => {
     setFileHandle(null);
@@ -100,8 +100,11 @@ const App = () => {
     const s = e.dataTransfer.items;
     const entry = await s[0].getAsFileSystemHandle();
     if (entry.kind === 'directory') {
-      const ss = await directoryOpen(entry, { recursive: true });
-      setDir(ss);
+      const dirDrop = await directoryOpen({
+        dirHandle: entry,
+        options: { recursive: true },
+      });
+      setDir(dirDrop);
     } else {
       setFileHandle(entry);
     }
@@ -129,7 +132,7 @@ const App = () => {
         />
         <TreeView
           defaultCollapseIcon={<ExpandMoreIcon />}
-          defaultExpanded={['components']}
+          defaultExpanded={[]}
           defaultExpandIcon={<ChevronRightIcon />}
         >
           {dir && renderTree(dir)}
