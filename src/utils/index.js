@@ -17,8 +17,7 @@ const getFiles = async (dirHandle, recursive, path = dirHandle.name) => {
             enumerable: true,
             get: () => nestedPath,
           });
-          Object.defineProperty(file, 'id', { value: nanoid() });
-          return file;
+          return Object.defineProperty(file, 'id', { value: nanoid() });
         }),
       );
     } else if (entry.kind === 'directory' && recursive) {

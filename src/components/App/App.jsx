@@ -34,6 +34,10 @@ const App = () => {
     if (fileHandle) readFile(fileHandle);
   }, [fileHandle]);
 
+  useEffect(() => {
+    console.log('%cApp.jsx line:38 dir', 'color: #007acc;', dir);
+  }, [dir]);
+
   const handleClick = async () => {
     setFileHandle(...(await window.showOpenFilePicker()));
   };
@@ -68,7 +72,7 @@ const App = () => {
     }
   };
 
-  const renderTree = (nodes) => {
+  const renderTree = (nodes) => (
     <TreeItem
       key={nodes.id}
       nodeId={nodes.id}
@@ -80,8 +84,8 @@ const App = () => {
       {Array.isArray(nodes.children)
         ? nodes.children.map((node) => renderTree(node))
         : null}
-    </TreeItem>;
-  };
+    </TreeItem>
+  );
 
   const handleCreateNew = async () => {
     setFileHandle(null);
